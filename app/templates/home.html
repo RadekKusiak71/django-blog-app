@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Home {% endblock %}
+{% block extrahead %}{% endblock %}
+
+{% block content %}
+
+<form class="d-flex" role="search" method="GET" action="{% url 'home-page' %}">
+    <input class="form-control me-2" type="search" name="q" placeholder="Search by title" aria-label="Search"/>
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+        <div class="col-12">
+            {% for post in object_list %}
+            <div style="background-color: #E6E6E6;" class="post-container mt-2  rounded h-auto d-flex w-100  shadow-sm">
+                <div class="post-data p-3 h-100 w-100">
+                    <p class="fs-4 text-dark m-0">{{post.title}}</p>
+                    <p class="text-black-50">By {{post.profile.user.first_name}} {{post.profile.user.last_name}} - {{post.created_date}}</p>
+                    <p class="text-dark">{{post.description}}</p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'post' pk=post.id %}" class="btn btn-primary">Read more</a>
+                        {%if request.user == post.profile.user%}
+                            <a href="{% url 'post-edit' pk=post.id %}" class="btn btn-secondary">Edit</a>
+                            <form method="POST" action="{% url 'post-delete' pk=post.id %}">
+                                {% csrf_token %}
+                                <button type="submit" href="{% url 'post' pk=post.id %}" class="btn btn-danger">Delete</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+{% endblock %}
+

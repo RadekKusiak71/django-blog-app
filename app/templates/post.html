@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} {{object.title}} {% endblock %}
+{% block extrahead %}{% endblock %}
+
+{% block content %}
+<div>
+    <p class="h1">{{object.title}}</p>
+    <hr>
+    <p class="fs-5">Posted: {{object.created_date}}</p>
+    <p class="fs-5 text-shadow">By {{object.profile.user.first_name}} {{object.profile.user.last_name}}</p>
+    {{object.body|safe}}
+</div>
+{% endblock %}
+
