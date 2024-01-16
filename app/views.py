@@ -6,8 +6,11 @@ from django.views.generic import ListView, CreateView, DetailView, DeleteView, U
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
-from .models import Post, Profile
-from .forms import RegisterForm, PostUpdateForm, PostCreateForm
+from .models import Post, Profile, Comment
+from .forms import RegisterForm, PostUpdateForm, PostCreateForm, CommentCreateForm
+from django.views.generic.edit import FormMixin
+from django.urls import reverse
+from django.http import HttpResponseForbidden
 
 
 class UserPostListView(ListView):
@@ -43,9 +46,39 @@ class PostUpadteView(UpdateView):
         return super().get_queryset()
 
 
-class PostDetailView(DetailView):
+class PostDetailView(FormMixin, DetailView):
     model = Post
     template_name = 'post.html'
+    form_class = CommentCreateForm
+
+    def get_success_url(self):
+        return reverse('post', kwargs={'pk': self.object.pk})
+
+    def form_valid(self, form):
+        comment = form.save(commit=False)
+        comment.profile = Profile.objects.get(user=self.request.user)
+        comment.post = self.object
+        comment.save()
+
+        return super().form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+
+        self.object = self.get_object()
+        form = self.get_form()
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context['comments'] = Comment.objects.filter(
+            post=context['post']).order_by('-created_date')
+        return context
 
 
 class PostDeleteView(DeleteView):

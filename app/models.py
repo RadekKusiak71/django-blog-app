@@ -35,18 +35,10 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    body = models.CharField(max_length=255)
+    body = models.TextField(max_length=500)
     created_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return 'Comment created by %s at %s' % (self.profile.user.username, self.created_date)
-
-
-class Rate(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    positive = models.BooleanField()
-
-    def __str__(self):
-        return 'Post %i rated by %s' % (self.post.id, self.profile.user.username)
