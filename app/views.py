@@ -11,9 +11,10 @@ from .forms import RegisterForm, PostUpdateForm, PostCreateForm, CommentCreateFo
 from django.views.generic.edit import FormMixin
 from django.urls import reverse
 from django.http import HttpResponseForbidden
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class UserPostListView(ListView):
+class UserPostListView(LoginRequiredMixin, ListView):
     template_name = 'home.html'
 
     def get_queryset(self) -> QuerySet:
@@ -26,7 +27,7 @@ class UserPostListView(ListView):
         return queryset
 
 
-class PostCreateView(CreateView):
+class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     template_name = 'post_create.html'
     form_class = PostCreateForm
@@ -37,7 +38,7 @@ class PostCreateView(CreateView):
         return super().form_valid(form)
 
 
-class PostUpadteView(UpdateView):
+class PostUpadteView(LoginRequiredMixin, UpdateView):
     model = Post
     template_name = 'post_edit.html'
     form_class = PostUpdateForm
@@ -81,7 +82,7 @@ class PostDetailView(FormMixin, DetailView):
         return context
 
 
-class PostDeleteView(DeleteView):
+class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
     success_url = reverse_lazy("home-page")
 
